@@ -1,0 +1,457 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="Apna Bazar Seller — Manage your local shop on Apna Bazar.">
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Apna Bazar Seller</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDG1knXMqagbDeVVIWDeVh4x0DTZN3wZXo&libraries=places"></script>
+</head>
+
+<body>
+
+    <!-- --- OFFLINE --- -->
+    <div class="offline-overlay" id="offlineOverlay">
+        <span class="material-symbols-outlined offline-icon">wifi_off</span>
+        <h2>No Internet</h2>
+        <p>Check your connection and try again</p>
+        <button class="btn btn-primary btn-full" onclick="location.reload()">Retry</button>
+    </div>
+
+    <!-- --- ONBOARDING: OTP --- -->
+    <div class="onboarding-overlay" id="onboardingOtp">
+        <div class="onboarding-card">
+            <div class="onboarding-logo">🏪</div>
+            <h1>Apna Bazar Seller</h1>
+            <p class="onboarding-sub">Start selling to your local customers</p>
+            <div id="otpPhoneStep">
+                <input type="tel" class="form-input" id="otpPhone" placeholder="Enter 10-digit mobile number"
+                    maxlength="10" inputmode="numeric">
+                <div class="form-error" id="phoneError">Enter a valid 10-digit number</div>
+                <button class="btn btn-primary btn-full" id="sendOtpBtn" onclick="Onboarding.sendOtp()">Send
+                    OTP</button>
+            </div>
+            <div id="otpVerifyStep" class="hidden">
+                <p class="otp-info" id="otpSentMsg">OTP sent to +91 —</p>
+                <div class="otp-group">
+                    <input type="text" class="otp-box otp-input" maxlength="1" data-otp="0" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                    <input type="text" class="otp-box otp-input" maxlength="1" data-otp="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                    <input type="text" class="otp-box otp-input" maxlength="1" data-otp="2" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                    <input type="text" class="otp-box otp-input" maxlength="1" data-otp="3" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                    <input type="text" class="otp-box otp-input" maxlength="1" data-otp="4" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                    <input type="text" class="otp-box otp-input" maxlength="1" data-otp="5" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                </div>
+                <div class="form-error" id="otpError">Invalid OTP. Try again.</div>
+                <button class="btn btn-primary btn-full" id="verifyOtpBtn" onclick="Onboarding.verifyOtp()">Verify &
+                    Continue</button>
+          <button class="btn btn-text" onclick="resendOtp()" id="resendOtpBtn">Resend OTP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- ONBOARDING: SHOP SETUP --- -->
+    <div class="onboarding-overlay hidden" id="onboardingShop">
+        <div class="page-container">
+            <div class="onboarding-card">
+                <h2>Set Up Your Shop</h2>
+                <p class="onboarding-sub">Tell us about your business</p>
+                <label class="form-label">Shop Name *</label>
+                <input type="text" class="form-input" id="setupShopName" placeholder="e.g. Rajvi Fashion">
+                <label class="form-label">Category *</label>
+                <div class="cat-chips" id="setupCategoryChips"></div>
+                <label class="form-label">Area / Location *</label>
+                <input type="text" class="form-input" id="setupArea" placeholder="e.g. Patan Main Market">
+                <label class="form-label">Shop Location (GPS) *</label>
+                <button class="btn btn-secondary btn-full" id="detectLocationBtn" onclick="Onboarding.detectLocation()">
+                    📍 Detect My Location
+                </button>
+                <p class="form-hint" id="locationStatus" style="font-size:12px;color:var(--text-secondary);margin-top:4px;display:none;"></p>
+                <div id="shopLocationMap" class="onboarding-map hidden" aria-label="Detected shop location preview"></div>
+                <button class="btn btn-text hidden" id="adjustLocationBtn" onclick="Onboarding.enableLocationAdjustment()">Adjust location</button>
+                <div class="form-error" id="setupError">Fill all required fields</div>
+                <button class="btn btn-primary btn-full" id="saveShopBtn" onclick="Onboarding.saveShop()">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- ONBOARDING: VERIFICATION --- -->
+    <div class="onboarding-overlay hidden" id="onboardingVerify">
+        <div class="onboarding-card">
+            <h2>Verify Your Shop</h2>
+            <p class="onboarding-sub">Upload one document for verification</p>
+            <div class="upload-options">
+                <label class="upload-option"><input type="radio" name="docType" value="Shop Photo" checked> Shop
+                    Photo</label>
+                <label class="upload-option"><input type="radio" name="docType" value="GST Certificate"> GST
+                    Certificate</label>
+                <label class="upload-option"><input type="radio" name="docType" value="Electricity Bill"> Electricity
+                    Bill</label>
+            </div>
+            <div class="upload-area" id="verifyUpload" onclick="Onboarding.pickDoc()">
+                <span class="material-symbols-outlined">cloud_upload</span>
+                <p>Tap to upload document</p>
+                <span class="upload-hint">JPG, PNG or PDF</span>
+            </div>
+            <div id="verifyPreview" class="upload-preview hidden">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>Document selected</span>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="Onboarding.submitVerification()">Submit & Start
+                Selling</button>
+        </div>
+    </div>
+
+    <!-- --- PAGE: HOME --- -->
+    <section class="page" id="page-home">
+        <div class="top-bar">
+            <div class="top-bar-shop" id="homeShopName"></div>
+            <div class="top-bar-title">Apna Bazar Seller</div>
+            <button class="icon-btn" onclick="trackEvent('notification_click')">
+                <span class="material-symbols-outlined">notifications_none</span>
+                <span class="notif-dot" id="notifDot"></span>
+            </button>
+        </div>
+        <div class="page-content">
+            <div class="commission-banner" id="commissionBanner">
+                <span class="material-symbols-outlined">celebration</span>
+                <span data-key="commission_banner">0% commission for 30 days after your first order!</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-title" data-key="today_summary">Today's Summary</div>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-value" id="todayOrders">0</div>
+                        <div class="summary-label" data-key="orders_nav">Orders</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="todayEarnings">₹0</div>
+                        <div class="summary-label" data-key="earnings">Earnings</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="nextPayout">Tomorrow</div>
+                        <div class="summary-label" data-key="next_payout">Next Payout</div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button class="btn btn-primary btn-full btn-lg" onclick="navigateTo('add')">
+                    <span class="material-symbols-outlined">add</span> <span data-key="add_product">Add Product</span>
+                </button>
+            </div>
+            <div class="section-header">
+                <h3 data-key="recent_orders">Recent Orders</h3>
+                <button class="btn btn-text" onclick="navigateTo('orders')" data-key="view_all">View All</button>
+            </div>
+            <div id="recentOrders" class="container"></div>
+            <div class="empty-state hidden" id="emptyRecentOrders">
+                <span class="empty-icon">📦</span>
+                <h3 data-key="no_orders">No orders yet</h3>
+                <p data-key="recent_orders_hint">Orders appear here when customers buy your products</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- PAGE: ADD PRODUCT --- -->
+    <section class="page" id="page-add">
+        <div class="top-bar">
+            <div class="top-bar-title" style="flex:1" data-key="add_product">Add Product</div>
+        </div>
+        <div class="page-content page-content-sticky">
+            <div class="form-section">
+                <div class="form-section-title"><span class="step-num">1</span> <span data-key="product_photos">Product Photos</span></div>
+                <div class="image-grid" id="imageGrid"></div>
+                <div class="form-hint" data-key="product_photos_hint">Add 1–5 photos. First photo is the main image.</div>
+            </div>
+            <div class="form-section">
+                <div class="form-section-title"><span class="step-num">2</span> <span data-key="category">Category</span></div>
+                <div class="cat-chips" id="addCategoryChips"></div>
+            </div>
+            <div id="sizeSection" style="display:none"></div>
+            <div class="form-section">
+                <div class="form-section-title"><span class="step-num" id="detailsStepNum">3</span> <span data-key="details">Details</span></div>
+                <label class="form-label" data-key="product_name">Product Name</label>
+                <input type="text" class="form-input" id="addName" placeholder="Auto-generated from category + price">
+                <label class="form-label" data-key="price_label">Price (₹) *</label>
+                <input type="number" class="form-input" id="addPrice" placeholder="e.g. 599" inputmode="numeric"
+                    oninput="updatePreview()">
+                <div id="generalQtyWrap">
+                    <label class="form-label" data-key="quantity_available">Quantity Available *</label>
+                    <input type="number" class="form-input" id="addQty" placeholder="e.g. 10" value="10"
+                        inputmode="numeric" min="0">
+                </div>
+                <label class="form-label" data-key="description_optional">Description (optional)</label>
+                <textarea class="form-input form-textarea" id="addDesc" placeholder="Describe your product..."
+                    rows="3"></textarea>
+                <div class="form-group">
+                    <label for="colorInput" data-key="color_optional">Color (optional)</label>
+                    <input type="text" id="colorInput" placeholder="e.g. Red / Blue / Black">
+                    <div class="form-hint" data-key="color_hint">Multiple colors allowed (separate with /)</div>
+                </div>
+            </div>
+            <div class="form-section">
+                <div class="form-section-title" data-key="live_preview">Live Preview</div>
+                <div class="preview-card" id="livePreview">
+                    <div class="preview-img" id="previewImage">
+                        <div class="ph-img">📦</div>
+                    </div>
+                    <div class="preview-body">
+                        <div class="preview-name" id="previewName">Product Name</div>
+                        <div class="preview-price" id="previewPrice">₹0</div>
+                        <div class="preview-shop" id="previewShop">Your Shop</div>
+                        <div class="preview-badge">⚡ 1 hr • Patan</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-error" id="addError" data-key="add_error">Select category, subcategory, enter price & quantity</div>
+            <div class="sticky-spacer"></div>
+        </div>
+        <div class="sticky-bottom">
+            <button class="btn btn-primary btn-full" id="postProductBtn" onclick="postProduct()">
+                <span class="material-symbols-outlined">publish</span> <span data-key="post_product">Post Product</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- --- PAGE: ORDERS --- -->
+    <section class="page" id="page-orders">
+        <div class="top-bar">
+            <div class="top-bar-title" style="flex:1" data-key="orders_nav">Orders</div>
+        </div>
+        <div class="page-content">
+            <div class="filter-scroll" id="orderFilters">
+                <button class="filter-chip active" data-filter="all" onclick="filterOrders('all',this)" data-key="all">All</button>
+                <button class="filter-chip" data-filter="new" onclick="filterOrders('new',this)" data-key="new">New</button>
+                <button class="filter-chip" data-filter="accepted"
+                    onclick="filterOrders('accepted',this)" data-key="accepted">Accepted</button>
+                <button class="filter-chip" data-filter="packed" onclick="filterOrders('packed',this)" data-key="packed">Packed</button>
+                <button class="filter-chip" data-filter="ready" onclick="filterOrders('ready',this)" data-key="ready">Ready</button>
+                <button class="filter-chip" data-filter="delivered"
+                    onclick="filterOrders('delivered',this)" data-key="delivered">Delivered</button>
+            </div>
+            <div id="orderList" class="container"></div>
+            <div class="empty-state hidden" id="emptyOrders">
+                <span class="empty-icon">📦</span>
+                <h3 data-key="no_orders">No orders yet</h3>
+                <p data-key="no_orders_hint">Orders will show up here when customers buy your products</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- PAGE: ORDER DETAIL --- -->
+    <section class="page" id="page-order-detail">
+        <div class="back-bar">
+            <button class="back-btn" onclick="goBack()"><span
+                    class="material-symbols-outlined">arrow_back</span></button>
+            <span class="back-bar-title" id="orderDetailTitle">Order #AB1001</span>
+        </div>
+        <div class="page-content container">
+            <div class="od-status-wrap"><span class="status-badge" id="odStatus">New</span></div>
+            <div class="detail-card">
+                <div class="detail-row"><span class="dl" data-key="product_label">Product</span><span class="dv" id="odProduct">—</span></div>
+                <div class="detail-row"><span class="dl" data-key="quantity_label">Quantity</span><span class="dv" id="odQty">1</span></div>
+                <div class="detail-row"><span class="dl" data-key="buyer_area">Buyer Area</span><span class="dv" id="odBuyerArea">—</span>
+                </div>
+                <div class="detail-row"><span class="dl" data-key="delivery_address">Delivery Address</span><span class="dv" id="odAddress">—</span>
+                </div>
+                <div class="detail-row"><span class="dl" data-key="delivery">Delivery</span><span class="dv" data-key="delivery_handled">Handled by Apna Bazar</span>
+                </div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-row"><span class="dl" data-key="order_amount">Order Amount</span><span class="dv" id="odAmount">₹0</span>
+                </div>
+                <div class="detail-row"><span class="dl" data-key="commission">Commission (10%)</span><span class="dv text-err"
+                        id="odCommission">-₹0</span></div>
+                <div class="detail-row total"><span class="dl" data-key="net_earnings">Net Earnings</span><span class="dv" id="odNet">₹0</span>
+                </div>
+                <div class="detail-row"><span class="dl" data-key="payout_date">Payout Date</span><span class="dv" id="odPayout">Tomorrow
+                        (T+1)</span></div>
+            </div>
+            <div id="odActions" class="od-actions"></div>
+        </div>
+    </section>
+
+    <!-- --- PAGE: PROFILE --- -->
+    <section class="page" id="page-profile">
+        <div class="top-bar">
+            <div class="top-bar-title" style="flex:1" data-key="profile_title">Profile</div>
+        </div>
+        <div class="page-content">
+            <div class="shop-header">
+                <div class="shop-banner"></div>
+                <div class="shop-info">
+                    <div class="shop-avatar" id="profileAvatar">R</div>
+                    <div class="shop-details">
+                    <div class="shop-name"><span id="profileShopName"></span><span
+                                class="material-symbols-outlined verified-icon hidden"
+                                id="profileVerified">verified</span></div>
+                        <div class="shop-meta" id="profileMeta">Active since Feb 2026</div>
+                        <div class="shop-meta" id="profileOrders">0 completed orders</div>
+                    </div>
+                </div>
+            </div>
+            <div class="verify-banner hidden" id="verificationBanner">
+                <span class="material-symbols-outlined">hourglass_top</span>
+                <span data-key="verification_in_progress">Verification in progress. We'll notify you once approved.</span>
+            </div>
+            <div class="section-header">
+                <h3 data-key="my_products">My Products</h3><button class="btn btn-text" onclick="navigateTo('add')" data-key="add_short">+ Add</button>
+            </div>
+            <div id="productFilters" class="filter-bar"></div>
+            <div class="product-grid" id="productList"></div>
+            <div class="empty-state small hidden" id="emptyProducts">
+                <span class="empty-icon">📦</span>
+                <h3 data-key="no_products">No products yet</h3>
+                <p data-key="no_products_hint">Tap "Add Product" to get started</p>
+                <button class="btn btn-primary" onclick="navigateTo('add')" data-key="add_product">Add Product</button>
+            </div>
+            <div class="profile-menu">
+                <div class="menu-section">
+                    <div class="menu-title" data-key="shop_details">Shop Details</div>
+                    <div class="menu-item" onclick="editField('Shop Timings')">
+                        <div class="menu-icon"><span class="material-symbols-outlined">schedule</span></div>
+                        <span class="menu-text" data-key="shop_timings">Shop Timings</span>
+                        <span class="menu-val" id="shopTimings">9 AM – 9 PM</span>
+                        <span class="material-symbols-outlined menu-arrow">chevron_right</span>
+                    </div>
+                    <div class="menu-item" onclick="editField('Contact Number')">
+                        <div class="menu-icon"><span class="material-symbols-outlined">call</span></div>
+                        <span class="menu-text" data-key="contact_number">Contact Number</span>
+                        <span class="menu-val" id="shopContact">+91 —</span>
+                        <span class="material-symbols-outlined menu-arrow">chevron_right</span>
+                    </div>
+                    <div class="menu-item" onclick="editField('Bank Details')">
+                        <div class="menu-icon"><span class="material-symbols-outlined">account_balance</span></div>
+                        <span class="menu-text" data-key="bank_details">Bank Details (Payout)</span>
+                        <span class="menu-val" id="shopBank">Not set</span>
+                        <span class="material-symbols-outlined menu-arrow">chevron_right</span>
+                    </div>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-title" data-key="settings">Settings</div>
+                    <div class="menu-item" onclick="toggleLanguage()">
+                        <div class="menu-icon"><span class="material-symbols-outlined">translate</span></div>
+                        <span class="menu-text" id="langLabel" data-key="language">Language</span>
+                        <div class="toggle" id="langToggle"></div>
+                    </div>
+                    <div class="menu-item" onclick="toggleDarkMode()">
+                        <div class="menu-icon"><span class="material-symbols-outlined">dark_mode</span></div>
+                        <span class="menu-text" data-key="dark_mode">Dark Mode</span>
+                        <div class="toggle" id="darkModeToggle"></div>
+                    </div>
+                    <div class="menu-item" onclick="navigateTo('help')">
+                        <div class="menu-icon"><span class="material-symbols-outlined">help</span></div>
+                        <span class="menu-text" data-key="help">Help</span>
+                        <span class="material-symbols-outlined menu-arrow">chevron_right</span>
+                    </div>
+                    <div class="menu-item" onclick="navigateTo('terms')">
+                        <div class="menu-icon"><span class="material-symbols-outlined">gavel</span></div>
+                        <span class="menu-text" data-key="terms">Terms & Conditions</span>
+                        <span class="material-symbols-outlined menu-arrow">chevron_right</span>
+                    </div>
+                    <div class="menu-item" onclick="logout()">
+                        <div class="menu-icon"><span class="material-symbols-outlined"
+                                style="color:var(--error)">logout</span></div>
+                        <span class="menu-text" style="color:var(--error)" data-key="logout">Logout</span>
+                    </div>
+                </div>
+            </div>
+            <div style="height:24px"></div>
+        </div>
+    </section>
+
+    <!-- --- PAGE: HELP --- -->
+    <section class="page" id="page-help">
+        <div class="top-bar">
+            <button class="icon-btn" onclick="goBack()">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <div class="top-bar-title" style="flex:1" data-key="help">Help</div>
+        </div>
+        <div class="page-content container">
+            <div class="detail-card">
+                <h2 data-key="help">Help</h2>
+                <p data-key="help_intro">For any support, contact:</p>
+                <p><strong data-key="email_label">Email:</strong> <a href="mailto:apnabazar2203@gmail.com">apnabazar2203@gmail.com</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- PAGE: TERMS --- -->
+    <section class="page" id="page-terms">
+        <div class="top-bar">
+            <button class="icon-btn" onclick="goBack()">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <div class="top-bar-title" style="flex:1" data-key="terms">Terms & Conditions</div>
+        </div>
+        <div class="page-content container">
+            <div class="detail-card">
+                <h2 data-key="terms">Terms & Conditions</h2>
+                <p data-key="terms_intro">By using Apna Bazar, you agree:</p>
+                <ul>
+                    <li data-key="terms_rule_1">You will list genuine products</li>
+                    <li data-key="terms_rule_2">Prices must be accurate</li>
+                    <li data-key="terms_rule_3">No illegal items allowed</li>
+                    <li data-key="terms_rule_4">Orders must be fulfilled responsibly</li>
+                    <li data-key="terms_rule_5">Platform may suspend misuse</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- EDIT MODAL --- -->
+    <div class="modal-bg" id="editModal">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <h2 id="editModalTitle">Edit</h2>
+            <input type="text" class="form-input" id="editModalInput">
+            <button class="btn btn-primary btn-full" onclick="saveEditField()">Save</button>
+        </div>
+    </div>
+
+    <!-- --- SUBCATEGORY BOTTOM SHEET --- -->
+    <div class="modal-bg" id="subcategoryModal" onclick="if(event.target===this) closeSubcategoryModal()">
+        <div class="modal-sheet" style="max-height:85vh; display:flex; flex-direction:column;">
+            <div class="modal-handle"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h2 style="margin:0;">Select Subcategory</h2>
+                <button class="icon-btn" onclick="closeSubcategoryModal()"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <input type="text" class="form-input" id="subcategorySearchInput" placeholder="Search subcategory..." oninput="renderSubcategoryList()" style="margin-bottom:12px;">
+            <div id="subcategoryModalList" style="overflow-y:auto; flex:1; padding-bottom:8px;">
+                <!-- items injected by JS -->
+            </div>
+            <button class="btn btn-secondary btn-full" id="seeAllSubcategoriesBtn" onclick="toggleSeeAllSubcategories()" style="margin-top:8px; display:none;">See All ▼</button>
+            <button class="btn btn-primary btn-full" onclick="closeSubcategoryModal()" style="margin-top:8px;">Done</button>
+        </div>
+    </div>
+
+    <!-- --- BOTTOM NAV --- -->
+    <nav class="bottom-nav hidden" id="bottomNav">
+        <button class="nav-item active" data-page="home" onclick="navigateTo('home')">
+            <span class="material-symbols-outlined">home</span><span data-key="home_nav">Home</span>
+        </button>
+        <button class="nav-item" data-page="add" onclick="navigateTo('add')">
+            <span class="material-symbols-outlined">add_circle</span><span data-key="add_nav">Add</span>
+        </button>
+        <button class="nav-item" data-page="orders" onclick="navigateTo('orders')">
+            <span class="material-symbols-outlined">receipt_long</span><span data-key="orders_nav">Orders</span>
+        </button>
+        <button class="nav-item" data-page="profile" onclick="navigateTo('profile')">
+            <span class="material-symbols-outlined">person</span><span data-key="profile_title">Profile</span>
+        </button>
+    </nav>
+
+    <!-- --- TOAST --- -->
+    <div class="toast" id="toast"></div>
+
+    <script defer src="api.js"></script>
+    <script defer src="app.js"></script>
+</body>
+
+</html>

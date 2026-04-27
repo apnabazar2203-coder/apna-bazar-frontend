@@ -28,12 +28,14 @@
         <div class="onboarding-card">
             <div class="onboarding-logo">🏪</div>
             <h1>Apna Bazar Seller</h1>
-            <p class="onboarding-sub">Start selling to your local customers</p>
+            <p class="onboarding-sub" data-key="start_selling_local">Start selling to your local customers</p>
             <div id="otpPhoneStep">
-                <input type="tel" class="form-input" id="otpPhone" placeholder="Enter 10-digit mobile number"
+                <div class="lang-toggle onboarding-lang" id="loginLangToggle"></div>
+                <h2 class="onboarding-title" data-key="enter_mobile">Enter your mobile number</h2>
+                <input type="tel" class="form-input" id="otpPhone" data-placeholder-key="enter_mobile_placeholder" placeholder="Enter 10-digit mobile number"
                     maxlength="10" inputmode="numeric">
-                <div class="form-error" id="phoneError">Enter a valid 10-digit number</div>
-                <button class="btn btn-primary btn-full" id="sendOtpBtn" onclick="Onboarding.sendOtp()">Send
+                <div class="form-error" id="phoneError" data-key="valid_phone_number">Enter a valid 10-digit number</div>
+                <button class="btn btn-primary btn-full" id="sendOtpBtn" onclick="Onboarding.sendOtp()" data-key="send_otp">Send
                     OTP</button>
             </div>
             <div id="otpVerifyStep" class="hidden">
@@ -47,9 +49,9 @@
                     <input type="text" class="otp-box otp-input" maxlength="1" data-otp="5" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
                 </div>
                 <div class="form-error" id="otpError">Invalid OTP. Try again.</div>
-                <button class="btn btn-primary btn-full" id="verifyOtpBtn" onclick="Onboarding.verifyOtp()">Verify &
+                <button class="btn btn-primary btn-full" id="verifyOtpBtn" onclick="Onboarding.verifyOtp()" data-key="verify_continue">Verify &
                     Continue</button>
-          <button class="btn btn-text" onclick="resendOtp()" id="resendOtpBtn">Resend OTP</button>
+          <button class="btn btn-text" onclick="resendOtp()" id="resendOtpBtn" data-key="resend_otp">Resend OTP</button>
             </div>
         </div>
     </div>
@@ -333,10 +335,12 @@
                 </div>
                 <div class="menu-section">
                     <div class="menu-title" data-key="settings">Settings</div>
-                    <div class="menu-item" onclick="toggleLanguage()">
+                    <div class="menu-item menu-item-language">
                         <div class="menu-icon"><span class="material-symbols-outlined">translate</span></div>
-                        <span class="menu-text" id="langLabel" data-key="language">Language</span>
-                        <div class="toggle" id="langToggle"></div>
+                        <div class="menu-item-language-content">
+                            <span class="menu-text" id="langLabel" data-key="language">Language</span>
+                            <div class="lang-toggle" id="profileLangToggle"></div>
+                        </div>
                     </div>
                     <div class="menu-item" onclick="toggleDarkMode()">
                         <div class="menu-icon"><span class="material-symbols-outlined">dark_mode</span></div>

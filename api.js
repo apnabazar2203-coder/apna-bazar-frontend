@@ -3,7 +3,10 @@
    All backend communication lives here
    --------------------------------------- */
 
-const API_BASE = '/api';
+const BASE_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/api'
+    : 'https://seller.apnabazarmart.in/api';
 
 // Token Management
 const Auth = {
@@ -24,7 +27,7 @@ const Auth = {
 // Base Fetch Wrapper
 async function apiFetch(path, options = {}) {
   const token = Auth.getToken();
-  const requestUrl = `${API_BASE}${path}`;
+  const requestUrl = `${BASE_URL}${path}`;
 
   const isFormData = options.body instanceof FormData;
 
@@ -146,7 +149,7 @@ const ProductAPI = {
   // Update product (FormData with changed fields + new images only)
   async updateProduct(productId, formData) {
     return apiFetch(`/products/${productId}`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: formData
     });
   },

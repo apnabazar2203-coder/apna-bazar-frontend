@@ -3,7 +3,9 @@
    State-aware - No layout shift - Disabled states
    --------------------------------------- */
 
-const BASE_URL = "https://seller.apnabazarmart.in";
+const API_BASE_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'
+    : 'https://seller.apnabazarmart.in';
 
 const SHOP_CATEGORIES = [
     'Clothing',
@@ -17,6 +19,19 @@ const SHOP_CATEGORIES = [
 
 const translations = {
     en: {
+        enterMobile: 'Enter your mobile number',
+        productName: 'Product Name',
+        price: 'Price',
+        quantity: 'Quantity Available',
+        postProduct: 'Post Product',
+        updateProduct: 'Update Product',
+        start_selling_local: 'Start selling to your local customers',
+        enter_mobile: 'Enter your mobile number',
+        enter_mobile_placeholder: 'Enter 10-digit mobile number',
+        valid_phone_number: 'Enter a valid 10-digit number',
+        send_otp: 'Send OTP',
+        verify_continue: 'Verify & Continue',
+        resend_otp: 'Resend OTP',
         no_products: 'No products yet',
         no_products_hint: 'Tap "Add Product" to get started',
         no_products_in_category: 'No products in this category',
@@ -50,6 +65,7 @@ const translations = {
         live_preview: 'Live Preview',
         add_error: 'Select category, subcategory, enter price & quantity',
         post_product: 'Post Product',
+        update_product: 'Update Product',
         all: 'All',
         new: 'New',
         accepted: 'Accepted',
@@ -89,83 +105,98 @@ const translations = {
         switched_hindi: 'Switched to Hindi'
     },
     hi: {
-        no_products: 'No products yet',
-        no_products_hint: 'Tap "Add Product" to get started',
-        no_products_in_category: 'No products in this category',
-        no_products_filter_hint: 'Try another filter to see more products',
-        add_product: 'Add Product',
-        add_short: '+ Add',
-        home_nav: 'Home',
-        add_nav: 'Add',
-        orders_nav: 'Orders',
-        profile_title: 'Profile',
-        my_products: 'My Products',
-        recent_orders: 'Recent Orders',
-        view_all: 'View All',
-        no_orders: 'No orders yet',
-        no_orders_hint: 'Orders will show up here when customers buy your products',
-        recent_orders_hint: 'Orders appear here when customers buy your products',
-        commission_banner: '0% commission for 30 days after your first order!',
-        today_summary: "Today's Summary",
-        earnings: 'Earnings',
-        next_payout: 'Next Payout',
-        product_photos: 'Product Photos',
-        product_photos_hint: 'Add 1-5 photos. First photo is the main image.',
-        category: 'Category',
-        details: 'Details',
-        product_name: 'Product Name',
-        price_label: 'Price (₹) *',
-        quantity_available: 'Quantity Available *',
-        description_optional: 'Description (optional)',
-        color_optional: 'Color (optional)',
-        color_hint: 'Multiple colors allowed (separate with /)',
-        live_preview: 'Live Preview',
-        add_error: 'Select category, subcategory, enter price & quantity',
-        post_product: 'Post Product',
-        all: 'All',
-        new: 'New',
-        accepted: 'Accepted',
-        packed: 'Packed',
-        ready: 'Ready',
-        delivered: 'Delivered',
-        product_label: 'Product',
-        quantity_label: 'Quantity',
-        buyer_area: 'Buyer Area',
-        delivery_address: 'Delivery Address',
-        delivery: 'Delivery',
-        delivery_handled: 'Handled by Apna Bazar',
-        order_amount: 'Order Amount',
-        commission: 'Commission (10%)',
-        net_earnings: 'Net Earnings',
-        payout_date: 'Payout Date',
-        verification_in_progress: "Verification in progress. We'll notify you once approved.",
-        shop_details: 'Shop Details',
-        shop_timings: 'Shop Timings',
-        contact_number: 'Contact Number',
-        bank_details: 'Bank Details (Payout)',
-        settings: 'Settings',
-        language: 'Language',
-        dark_mode: 'Dark Mode',
-        logout: 'Logout',
-        help: 'Help',
-        help_intro: 'For any support, contact:',
-        email_label: 'Email:',
-        terms: 'Terms & Conditions',
-        terms_intro: 'By using Apna Bazar, you agree:',
-        terms_rule_1: 'You will list genuine products',
-        terms_rule_2: 'Prices must be accurate',
-        terms_rule_3: 'No illegal items allowed',
-        terms_rule_4: 'Orders must be fulfilled responsibly',
-        terms_rule_5: 'Platform may suspend misuse',
-        switched_english: 'Switched to English',
-        switched_hindi: 'Switched to Hindi'
+        enterMobile: 'अपना मोबाइल नंबर दर्ज करें',
+        productName: 'प्रोडक्ट का नाम',
+        price: 'कीमत',
+        quantity: 'उपलब्ध मात्रा',
+        postProduct: 'प्रोडक्ट पोस्ट करें',
+        updateProduct: 'प्रोडक्ट अपडेट करें',
+        start_selling_local: 'अपने स्थानीय ग्राहकों को बेचने की शुरुआत करें',
+        enter_mobile: 'अपना मोबाइल नंबर दर्ज करें',
+        enter_mobile_placeholder: '10 अंकों का मोबाइल नंबर दर्ज करें',
+        valid_phone_number: 'कृपया सही 10 अंकों का नंबर दर्ज करें',
+        send_otp: 'ओटीपी भेजें',
+        verify_continue: 'सत्यापित करें और आगे बढ़ें',
+        resend_otp: 'ओटीपी दोबारा भेजें',
+        no_products: 'अभी तक कोई प्रोडक्ट नहीं',
+        no_products_hint: '"Add Product" दबाकर शुरू करें',
+        no_products_in_category: 'इस कैटेगरी में कोई प्रोडक्ट नहीं',
+        no_products_filter_hint: 'और प्रोडक्ट देखने के लिए दूसरा फ़िल्टर चुनें',
+        add_product: 'प्रोडक्ट जोड़ें',
+        add_short: '+ जोड़ें',
+        home_nav: 'होम',
+        add_nav: 'जोड़ें',
+        orders_nav: 'ऑर्डर',
+        profile_title: 'प्रोफ़ाइल',
+        my_products: 'मेरे प्रोडक्ट',
+        recent_orders: 'हाल के ऑर्डर',
+        view_all: 'सभी देखें',
+        no_orders: 'अभी तक कोई ऑर्डर नहीं',
+        no_orders_hint: 'जब ग्राहक आपके प्रोडक्ट खरीदेंगे, ऑर्डर यहां दिखेंगे',
+        recent_orders_hint: 'जब ग्राहक आपके प्रोडक्ट खरीदेंगे, ऑर्डर यहां दिखेंगे',
+        commission_banner: 'पहले ऑर्डर के बाद 30 दिनों तक 0% कमीशन!',
+        today_summary: 'आज का सारांश',
+        earnings: 'कमाई',
+        next_payout: 'अगला भुगतान',
+        product_photos: 'प्रोडक्ट फोटो',
+        product_photos_hint: '1-5 फोटो जोड़ें। पहली फोटो मुख्य फोटो होगी।',
+        category: 'कैटेगरी',
+        details: 'विवरण',
+        product_name: 'प्रोडक्ट का नाम',
+        price_label: 'कीमत (₹) *',
+        quantity_available: 'उपलब्ध मात्रा *',
+        description_optional: 'विवरण (वैकल्पिक)',
+        color_optional: 'रंग (वैकल्पिक)',
+        color_hint: 'एक से अधिक रंग लिखें (/ से अलग करें)',
+        live_preview: 'लाइव प्रीव्यू',
+        add_error: 'कैटेगरी, सबकैटेगरी, कीमत और मात्रा चुनें',
+        post_product: 'प्रोडक्ट पोस्ट करें',
+        update_product: 'प्रोडक्ट अपडेट करें',
+        all: 'सभी',
+        new: 'नया',
+        accepted: 'स्वीकृत',
+        packed: 'पैक्ड',
+        ready: 'तैयार',
+        delivered: 'डिलीवर',
+        product_label: 'प्रोडक्ट',
+        quantity_label: 'मात्रा',
+        buyer_area: 'खरीदार का क्षेत्र',
+        delivery_address: 'डिलीवरी पता',
+        delivery: 'डिलीवरी',
+        delivery_handled: 'Apna Bazar द्वारा संभाला गया',
+        order_amount: 'ऑर्डर राशि',
+        commission: 'कमीशन (10%)',
+        net_earnings: 'शुद्ध कमाई',
+        payout_date: 'भुगतान तिथि',
+        verification_in_progress: 'वेरिफिकेशन जारी है। अनुमोदन होने पर हम आपको बताएंगे।',
+        shop_details: 'दुकान विवरण',
+        shop_timings: 'दुकान का समय',
+        contact_number: 'संपर्क नंबर',
+        bank_details: 'बैंक विवरण (भुगतान)',
+        settings: 'सेटिंग्स',
+        language: 'भाषा',
+        dark_mode: 'डार्क मोड',
+        logout: 'लॉगआउट',
+        help: 'मदद',
+        help_intro: 'किसी भी सहायता के लिए संपर्क करें:',
+        email_label: 'ईमेल:',
+        terms: 'नियम और शर्तें',
+        terms_intro: 'Apna Bazar का उपयोग करके आप सहमत हैं:',
+        terms_rule_1: 'आप केवल असली प्रोडक्ट लिस्ट करेंगे',
+        terms_rule_2: 'कीमतें सही होंगी',
+        terms_rule_3: 'कोई अवैध सामान अनुमति नहीं है',
+        terms_rule_4: 'ऑर्डर जिम्मेदारी से पूरे किए जाएंगे',
+        terms_rule_5: 'गलत उपयोग पर प्लेटफ़ॉर्म निलंबित कर सकता है',
+        switched_english: 'अंग्रेज़ी चुनी गई',
+        switched_hindi: 'हिंदी चुनी गई'
     }
 };
 
-let currentLang = localStorage.getItem('lang') || 'en';
+let currentLanguage = localStorage.getItem('lang') || 'en';
 let editMode = false;
 let editingProductId = null;
 let existingImages = [];
+let selectedSizes = [];
 
 const AppState = {
     page: 'home',
@@ -173,7 +204,7 @@ const AppState = {
     loggedIn: false,
     profileComplete: false,
     darkMode: false,
-    lang: currentLang,
+    lang: currentLanguage,
     shopName: '',
     categories: [],
     shopArea: 'Patan',
@@ -204,7 +235,35 @@ const AppState = {
 };
 
 function t(key) {
-    return translations[currentLang]?.[key] ?? translations.en[key] ?? key;
+    return translations[currentLanguage]?.[key] ?? translations.en[key] ?? key;
+}
+
+function renderLanguageControls() {
+    const markup = `
+        <button type="button" onclick="setLanguage('en')" class="${currentLanguage === 'en' ? 'active' : ''}">English</button>
+        <button type="button" onclick="setLanguage('hi')" class="${currentLanguage === 'hi' ? 'active' : ''}">हिंदी</button>
+    `;
+
+    ['loginLangToggle', 'profileLangToggle'].forEach(id => {
+        const container = document.getElementById(id);
+        if (container) {
+            container.innerHTML = markup;
+        }
+    });
+}
+
+function renderApp() {
+    applyTranslations();
+    renderLanguageControls();
+    syncProductSubmitButton();
+}
+
+function setLanguage(lang) {
+    if (!translations[lang]) return;
+
+    currentLanguage = lang;
+    localStorage.setItem('lang', lang);
+    renderApp();
 }
 
 function applyTranslations() {
@@ -214,13 +273,14 @@ function applyTranslations() {
         element.textContent = t(key);
     });
 
-    AppState.lang = currentLang;
-    document.documentElement.lang = currentLang === 'hi' ? 'hi' : 'en';
+    document.querySelectorAll('[data-placeholder-key]').forEach(element => {
+        const key = element.dataset.placeholderKey;
+        if (!key) return;
+        element.placeholder = t(key);
+    });
 
-    const langToggle = document.getElementById('langToggle');
-    if (langToggle) {
-        langToggle.classList.toggle('active', currentLang === 'hi');
-    }
+    AppState.lang = currentLanguage;
+    document.documentElement.lang = currentLanguage === 'hi' ? 'hi' : 'en';
 
     if (document.getElementById('emptyProducts')) {
         renderProducts();
@@ -936,6 +996,14 @@ function revokePreviewUrl(item) {
     }
 }
 
+function getDraftProductImages() {
+    return Array.isArray(AppState.productImages) ? AppState.productImages : [];
+}
+
+function getRetainedProductImages() {
+    return Array.isArray(existingImages) ? existingImages : [];
+}
+
 async function uploadVerificationImage(documentType, file) {
     const formData = new FormData();
     formData.append('document_type', documentType);
@@ -950,6 +1018,10 @@ async function uploadVerificationImage(documentType, file) {
 async function uploadProductImages(payload) {
     const formData = new FormData();
     const sizes = normalizeSizeList(payload.sizes);
+    const retainedImages = Array.isArray(payload.existingImages) ? payload.existingImages.filter(Boolean) : [];
+    const newImages = Array.isArray(payload.newImages)
+        ? payload.newImages
+        : (Array.isArray(payload.images) ? payload.images : []);
 
     formData.append('name', payload.title);
     formData.append('category', payload.category);
@@ -963,7 +1035,11 @@ async function uploadProductImages(payload) {
     }
     formData.append('sizes', JSON.stringify(sizes || []));
 
-    (payload.images || []).forEach(item => {
+    if (editMode && payload.productId !== null) {
+        formData.append('existingImages', JSON.stringify(retainedImages));
+    }
+
+    newImages.forEach(item => {
         if (item && item.file instanceof File) {
             formData.append('images', item.file, item.file.name);
         }
@@ -1243,6 +1319,12 @@ const Onboarding = {
     }
 };
 
+Onboarding.sendOTP = (...args) => Onboarding.sendOtp(...args);
+
+function sendOTP() {
+    return Onboarding.sendOtp();
+}
+
 function getOTPValue() {
     return Array.from(document.querySelectorAll('.otp-input'))
         .map(input => input.value)
@@ -1343,7 +1425,7 @@ function setupOtpInputs() {
 // ------------------
 async function loadProducts() {
     const res = await ProductAPI.getMyProducts();
-    AppState.products = res.data || [];
+    AppState.products = normalizeProductsWithSizes(res.data || res.products || []);
 }
 
 async function renderHome() {
@@ -1583,10 +1665,27 @@ function normalizeSizeList(sizes) {
     }
 
     if (typeof sizes === 'string') {
-        return sizes.trim() ? [sizes.trim()] : [];
+        const trimmed = sizes.trim();
+        if (!trimmed) return [];
+
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (Array.isArray(parsed)) {
+                return parsed.filter(Boolean);
+            }
+        } catch (error) {
+            // Fallback to plain string size below.
+        }
+
+        return [trimmed];
     }
 
     return [];
+}
+
+function setSelectedSizes(nextSizes) {
+    selectedSizes = normalizeSizeList(nextSizes);
+    AppState.addSelectedSizes = [...selectedSizes];
 }
 
 function normalizeProductSizes(product) {
@@ -1705,7 +1804,7 @@ function renderAdd() {
         AppState.productImages = [];
         AppState.addCat = '';
         AppState.selectedSubcategory = '';
-        AppState.addSelectedSizes = [];
+        setSelectedSizes([]);
         AppState.addSizeMode = '';
         document.getElementById('addName').value = '';
         document.getElementById('addPrice').value = '';
@@ -1750,8 +1849,9 @@ async function handleProductImageSelection(e) {
         return;
     }
 
-    const currentImages = Array.isArray(AppState.productImages) ? AppState.productImages : [];
-    if (currentImages.length + files.length > 5) {
+    const currentImages = getDraftProductImages();
+    const totalImageCount = getRetainedProductImages().length + currentImages.length + files.length;
+    if (totalImageCount > 5) {
         alert('Maximum 5 images allowed');
         e.target.value = '';
         return;
@@ -1793,29 +1893,46 @@ function addProductImage() {
     triggerImageUpload();
 }
 
-function removeProductImage(i) {
-    const removedImage = AppState.productImages[i];
-    revokePreviewUrl(removedImage);
-    AppState.productImages.splice(i, 1);
+function removeImage(index, source = 'new') {
+    if (source === 'existing') {
+        existingImages = getRetainedProductImages();
+        existingImages.splice(index, 1);
+    } else {
+        const draftImages = getDraftProductImages();
+        const removedImage = draftImages[index];
+        revokePreviewUrl(removedImage);
+        draftImages.splice(index, 1);
+        AppState.productImages = draftImages;
+    }
+
     renderImageGrid();
     updatePreview();
 }
 
 function resolveProductImageUrl(image) {
-    const url = typeof image === 'string' ? image : image?.url || '';
-    if (!url) return '';
-    return url.startsWith('http') ? url : `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+    if (!image) return `${API_BASE_URL}/placeholder.png`;
+
+    if (typeof image === 'string') {
+        return `${API_BASE_URL}${image}`;
+    }
+
+    if (typeof image === 'object' && image.url) {
+        return `${API_BASE_URL}${image.url}`;
+    }
+
+    return `${API_BASE_URL}/placeholder.png`;
 }
 
 function renderImageGrid() {
     const container = document.getElementById('imageGrid');
-    const newImages = AppState.productImages || [];
+    const newImages = getDraftProductImages();
+    const retainedImages = getRetainedProductImages();
 
     if (!container) return;
 
     container.innerHTML = '';
 
-    existingImages.forEach((image, index) => {
+    retainedImages.forEach((image, index) => {
         const url = resolveProductImageUrl(image);
         if (!url) return;
 
@@ -1826,7 +1943,14 @@ function renderImageGrid() {
         img.src = url;
         img.alt = `Existing product photo ${index + 1}`;
 
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-image-btn';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.onclick = () => removeImage(index, 'existing');
+
         item.appendChild(img);
+        item.appendChild(removeBtn);
         container.appendChild(item);
     });
 
@@ -1844,14 +1968,14 @@ function renderImageGrid() {
         removeBtn.type = 'button';
         removeBtn.className = 'remove-image-btn';
         removeBtn.innerHTML = '&times;';
-        removeBtn.onclick = () => removeProductImage(index);
+        removeBtn.onclick = () => removeImage(index, 'new');
 
         imageItem.appendChild(img);
         imageItem.appendChild(removeBtn);
         container.appendChild(imageItem);
     });
 
-    if (existingImages.length + newImages.length < 5) {
+    if (retainedImages.length + newImages.length < 5) {
         const addBox = document.createElement('div');
         addBox.className = 'image-add-box';
         addBox.onclick = triggerImageUpload;
@@ -1866,7 +1990,7 @@ function selectAddCategory(el) {
     AppState.addCat = el.dataset.cat;
     AppState.selectedSubcategory = '';
     AppState.showAllSubcategories = false;
-    AppState.addSelectedSizes = [];
+    setSelectedSizes([]);
     AppState.addSizeMode = '';
 
     // Open bottom sheet immediately
@@ -1931,7 +2055,7 @@ function toggleSeeAllSubcategories() {
 function selectSubcategory(subcategory) {
     console.log('SELECTED SUBCATEGORY:', subcategory);
     AppState.selectedSubcategory = subcategory;
-    AppState.addSelectedSizes = [];
+    setSelectedSizes([]);
     AppState.addSizeMode = '';
     renderSubcategoryList();
     closeSubcategoryModal();
@@ -1955,7 +2079,7 @@ function renderSizeSection() {
         return;
     }
 
-    const selectedSizes = normalizeSizeList(AppState.addSelectedSizes);
+    const activeSizes = normalizeSizeList(selectedSizes);
     let toggleBlock = '';
     let sizeOptions = [];
 
@@ -1965,7 +2089,7 @@ function renderSizeSection() {
         }
 
         sizeOptions = getSizes(AppState.selectedSubcategory, AppState.addSizeMode);
-        AppState.addSelectedSizes = selectedSizes.filter(size => sizeOptions.includes(size));
+        setSelectedSizes(activeSizes.filter(size => sizeOptions.includes(size)));
 
         const toggleButtons = toggleOptions.map(mode => {
             const active = AppState.addSizeMode === mode ? ' active' : '';
@@ -1978,12 +2102,12 @@ function renderSizeSection() {
     } else {
         AppState.addSizeMode = '';
         sizeOptions = getSizes(AppState.selectedSubcategory, '');
-        AppState.addSelectedSizes = selectedSizes.filter(size => sizeOptions.includes(size));
+        setSelectedSizes(activeSizes.filter(size => sizeOptions.includes(size)));
     }
 
     document.getElementById('detailsStepNum').textContent = '4';
     const chips = sizeOptions.map(s => {
-        const active = AppState.addSelectedSizes.includes(s) ? ' active' : '';
+        const active = selectedSizes.includes(s) ? ' active' : '';
         return `<button class="size-chip${active}" onclick="toggleSize('${s}')">${s}</button>`;
     }).join('');
 
@@ -1992,7 +2116,7 @@ function renderSizeSection() {
         <div class="form-section-title"><span class="step-num">3</span> Sizes</div>
         ${toggleBlock}
         <div class="size-chips">${chips}</div>
-        <div class="variant-hint">Sizes are optional. Tap all that match.</div>
+        <div class="variant-hint">Select sizes if applicable.</div>
     </div>`;
 
     updateQuantityVisibility();
@@ -2004,17 +2128,18 @@ function setSizeMode(mode) {
 
     AppState.addSizeMode = mode;
     const validSizes = getSizes(AppState.selectedSubcategory, mode);
-    AppState.addSelectedSizes = AppState.addSelectedSizes.filter(size => validSizes.includes(size));
+    setSelectedSizes(selectedSizes.filter(size => validSizes.includes(size)));
     renderSizeSection();
 }
 
 function toggleSize(size) {
-    const idx = AppState.addSelectedSizes.indexOf(size);
-    if (idx >= 0) {
-        AppState.addSelectedSizes.splice(idx, 1);
+    if (selectedSizes.includes(size)) {
+        setSelectedSizes(selectedSizes.filter(s => s !== size));
     } else {
-        AppState.addSelectedSizes.push(size);
+        setSelectedSizes([...selectedSizes, size]);
     }
+
+    console.log('SELECTED SIZES:', selectedSizes);
     renderSizeSection();
 }
 
@@ -2039,9 +2164,9 @@ function updatePreview() {
     document.getElementById('previewShop').textContent = AppState.shopName;
     const pi = document.getElementById('previewImage');
     
-    const images = Array.isArray(AppState.productImages) ? AppState.productImages : [];
+    const images = getDraftProductImages();
     const newImageUrl = images.find(item => item && item.preview)?.preview || '';
-    const existingImageUrl = existingImages.map(resolveProductImageUrl).find(Boolean) || '';
+    const existingImageUrl = getRetainedProductImages().map(resolveProductImageUrl).find(Boolean) || '';
     const url = newImageUrl || existingImageUrl;
 
     if (url) {
@@ -2067,7 +2192,7 @@ function syncProductSubmitButton() {
     if (!btn) return;
 
     const label = editMode
-        ? '<span>Update Product</span>'
+        ? `<span>${t('update_product')}</span>`
         : `<span data-key="post_product">${t('post_product')}</span>`;
 
     btn.innerHTML = `<span class="material-symbols-outlined">publish</span> ${label}`;
@@ -2078,10 +2203,26 @@ async function postProduct() {
     const p = document.getElementById('addPrice').value;
     const q = document.getElementById('addQty').value;
     const color = document.getElementById('colorInput').value.trim();
-    const sizes = normalizeSizeList(AppState.addSelectedSizes);
-    console.log("RAW sizes:", AppState.addSelectedSizes);
+    const sizes = [...selectedSizes];
+    const retainedImages = getRetainedProductImages();
+    const newImages = getDraftProductImages();
+    const images = [
+        ...retainedImages,
+        ...newImages
+    ];
+    console.log("RAW sizes:", selectedSizes);
     console.log("FINAL sizes:", sizes);
     console.log("IS ARRAY:", Array.isArray(sizes));
+
+    if (!images || images.length === 0) {
+        alert('At least one image required');
+        return;
+    }
+
+    if (images.length > 5) {
+        alert('Maximum 5 images allowed');
+        return;
+    }
 
     if (!AppState.addCat || !p || !q || !AppState.selectedSubcategory) {
         document.getElementById('addError').classList.add('show');
@@ -2107,7 +2248,8 @@ async function postProduct() {
             description,
             color,
             sizes,
-            images: AppState.productImages
+            existingImages: retainedImages,
+            newImages
         };
 
         await uploadProductImages(uploadPayload);
@@ -2116,7 +2258,7 @@ async function postProduct() {
         AppState.productImages = [];
         AppState.addCat = '';
         AppState.selectedSubcategory = '';
-        AppState.addSelectedSizes = [];
+        setSelectedSizes([]);
         AppState.addSizeMode = '';
         syncProductSubmitButton();
 
@@ -2314,31 +2456,35 @@ function renderProductCard(product) {
     console.log("RENDERING:", product);
 
     const image = Array.isArray(product.images) && product.images.length > 0
-        ? `https://seller.apnabazarmart.in/${product.images[0]}`
-        : '/placeholder.png';
+        ? resolveProductImageUrl(product.images[0])
+        : `${API_BASE_URL}/placeholder.png`;
+    const productSizes = normalizeSizeList(product?.sizes);
+    const sizeSummary = productSizes.length > 0 ? escapeHtml(productSizes.join(', ')) : '';
 
     console.log("IMAGE URL:", image);
 
     const id = escapeHtml(product?.id || '');
-    const name = escapeHtml(product?.name || 'Product');
+    const name = escapeHtml(product?.title || product?.name || 'Product');
     const price = Number(product?.price || 0);
-    const quantity = Number(product?.quantity || 0);
+    const stockCount = Number(product?.stock || product?.quantity || 0);
+    const isOutOfStock = stockCount <= 0;
 
     return `
         <div class="product-tile product-card">
-          ${quantity === 0 ? '<div class="oos-badge">Out of Stock</div>' : ''}
+          ${isOutOfStock ? '<div class="oos-badge">Out of Stock</div>' : ''}
           <div class="product-tile-img">
             <img
               src="${image}"
               alt="${name}"
               style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
-              onerror="this.onerror=null;this.src='/placeholder.png';"
+              onerror="this.onerror=null;this.src='${API_BASE_URL}/placeholder.png';"
             />
           </div>
           <div class="product-tile-body">
             <div class="product-tile-name">${name}</div>
             <div class="product-tile-price">₹${price.toLocaleString('en-IN')}</div>
-            <div class="product-tile-stock">${quantity > 0 ? quantity + ' in stock' : 'Out of stock'}</div>
+            ${sizeSummary ? `<div class="product-tile-stock">${sizeSummary}</div>` : ''}
+            <div class="product-tile-stock">${!isOutOfStock ? `In stock (${stockCount})` : 'Out of stock'}</div>
           </div>
           <div class="product-tile-actions">
             <button onclick="onEditProduct('${id}')"><span class="material-symbols-outlined">edit</span> Edit</button>
@@ -2368,11 +2514,11 @@ function onEditProduct(productOrId) {
 
     AppState.addCat = normalizeShopCategoryName(product.category);
     AppState.selectedSubcategory = product.subcategory || '';
-    AppState.addSelectedSizes = normalizeSizeList(product.sizes);
+    setSelectedSizes(product.sizes);
     AppState.addSizeMode = getInitialSizeType(
         AppState.addCat,
         AppState.selectedSubcategory,
-        AppState.addSelectedSizes
+        selectedSizes
     );
 
     document.getElementById('addName').value = product.title || product.name || '';
@@ -2397,7 +2543,7 @@ function onEditProduct(productOrId) {
     const existingColor = product.color || images.find(img => img && img.color)?.color || '';
     document.getElementById('colorInput').value = existingColor;
 
-    existingImages = images;
+    existingImages = images.filter(Boolean);
     AppState.productImages = [];
 
     syncProductSubmitButton();
@@ -2484,11 +2630,8 @@ function toggleDarkMode() {
 }
 
 function toggleLanguage() {
-    currentLang = currentLang === 'en' ? 'hi' : 'en';
-    AppState.lang = currentLang;
-    localStorage.setItem('lang', currentLang);
-    applyTranslations();
-    toast(currentLang === 'en' ? t('switched_english') : t('switched_hindi'));
+    setLanguage(currentLanguage === 'en' ? 'hi' : 'en');
+    toast(currentLanguage === 'en' ? t('switched_english') : t('switched_hindi'));
 }
 
 function logout() {
@@ -2531,7 +2674,7 @@ window.addEventListener('offline', () => { document.getElementById('offlineOverl
 document.addEventListener('DOMContentLoaded', async () => {
     renderSetupCategoryChips();
     renderAddCategoryChips();
-    applyTranslations();
+    renderApp();
 
     // Check for existing token - auto-login returning sellers
     if (Auth.isLoggedIn()) {

@@ -3,9 +3,17 @@
    State-aware - No layout shift - Disabled states
    --------------------------------------- */
 
-const API_BASE_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:5000'
-    : 'https://seller.apnabazarmart.in';
+console.log('app.js START');
+console.log('SellerAPI in app.js:', window.SellerAPI);
+console.log('Auth in app.js:', typeof Auth);
+console.log('BASE_URL:', window.BASE_URL);
+
+const API_BASE_URL = window.BASE_URL || (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:5000'
+        : 'http://187.127.146.178:5000'
+);
 
 const SHOP_CATEGORIES = [
     'Clothing',

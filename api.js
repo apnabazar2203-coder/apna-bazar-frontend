@@ -3,6 +3,10 @@
    All backend communication lives here
    --------------------------------------- */
 
+console.log('api.js START');
+
+try {
+
 const BASE_URL =
   window.location.hostname === 'localhost'
     ? 'http://localhost:5000/api'
@@ -189,3 +193,17 @@ const OrderAPI = {
     });
   }
 };
+
+console.log('SellerAPI inside api.js:', typeof SellerAPI);
+console.log('Before attach:', window.SellerAPI);
+
+window.Auth = Auth;
+window.SellerAPI = SellerAPI;
+window.ProductAPI = ProductAPI;
+window.OrderAPI = OrderAPI;
+
+console.log('After attach:', window.SellerAPI);
+console.log('api.js END');
+} catch (err) {
+  console.error('api.js crashed:', err);
+}

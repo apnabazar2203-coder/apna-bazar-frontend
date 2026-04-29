@@ -1920,12 +1920,12 @@ function removeImage(index, source = 'new') {
 function resolveProductImageUrl(image) {
     if (!image) return `${API_BASE_URL}/placeholder.png`;
 
-    if (typeof image === 'string') {
-        return `${API_BASE_URL}${image}`;
-    }
+    const imageUrl = typeof image === 'string' ? image : image?.url;
 
-    if (typeof image === 'object' && image.url) {
-        return `${API_BASE_URL}${image.url}`;
+    if (imageUrl) {
+        return imageUrl.startsWith('http')
+            ? imageUrl
+            : `${window.BASE_URL}/${String(imageUrl).replace(/^\/+/, '')}`;
     }
 
     return `${API_BASE_URL}/placeholder.png`;
